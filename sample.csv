@@ -1,0 +1,19 @@
+Complaint ID,Product,Sub-product,Issue,Sub-issue,State,ZIP code,Submitted via,Date received,Date sent to company,Company,Company response,Timely response?,Consumer disputed?
+1324677,Mortgage,Conventional fixed mortgage,"Loan servicing, payments, escrow account",,CA,91405,Web,04/10/2015,04/10/2015,Arbor Residential Mortgage LLC,In progress,Yes,
+1324691,Bank account or service,Savings account,"Account opening, closing, or management",,CA,95129,Web,04/10/2015,04/10/2015,Ally Financial Inc.,In progress,Yes,
+1324696,Mortgage,VA mortgage,"Loan servicing, payments, escrow account",,VA,22193,Web,04/10/2015,04/10/2015,Flagstar Bank,In progress,Yes,
+1324695,Debt collection,Credit card,Disclosure verification of debt,Not given enough info to verify debt,MA,01475,Web,04/10/2015,04/10/2015,"Lustig, Glaser & Wilson, P.C.",Closed with explanation,Yes,
+1325151,Debt collection,Federal student loan,Disclosure verification of debt,Right to dispute notice not received,MO,65614,Web,04/10/2015,04/10/2015,Transworld Systems Inc.,In progress,Yes,
+1324781,Debt collection,Credit card,Cont'd attempts collect debt not owed,Debt resulted from identity theft,CA,95961,Web,04/10/2015,04/10/2015,Santander Bank US,In progress,Yes,
+1324712,Debt collection,,Cont'd attempts collect debt not owed,Debt was paid,MA,01588,Web,04/10/2015,04/10/2015,"CMRE Financial Services, Inc.",Closed with explanation,Yes,Yes
+1323751,Credit reporting,,Incorrect information on credit report,Account status,PA,19138,Web,04/09/2015,04/09/2015,"FNIS (Fidelity National Information Services, Inc.)",Closed with explanation,Yes,
+1323258,Debt collection,"Other (phone, health club, etc.)",Cont'd attempts collect debt not owed,Debt was paid,NY,11249,Web,04/09/2015,04/09/2015,"Amsher Collection Services, Inc.",In progress,Yes,
+1322375,Debt collection,"Other (phone, health club, etc.)",Improper contact or sharing of info,Talked to a third party about my debt,LA,70560,Web,04/09/2015,04/09/2015,"CashCall, Inc.",Closed with explanation,Yes,Yes
+1322646,Debt collection,"Other (phone, health club, etc.)",Disclosure verification of debt,Not given enough info to verify debt,CA,90047,Web,04/09/2015,04/09/2015,"Convergent Resources, Inc.",Closed with explanation,Yes,
+1324632,Debt collection,,Cont'd attempts collect debt not owed,Debt is not mine,TX,77044,Web,04/09/2015,04/10/2015,"ResidentCollect, Inc.",Closed with explanation,Yes,
+1324226,Debt collection,"Other (phone, health club, etc.)",Disclosure verification of debt,Right to dispute notice not received,IL,60046,Web,04/09/2015,04/09/2015,"Convergent Resources, Inc.",Closed with explanation,Yes,
+1323226,Bank account or service,Other bank product/service,"Making/receiving payments, sending money",,,06200,Web,04/09/2015,04/09/2015,HSBC,Closed with explanation,Yes,
+1323222,Debt collection,"Other (phone, health club, etc.)",Cont'd attempts collect debt not owed,Debt is not mine,FL,32832,Web,04/09/2015,04/09/2015,"Convergent Resources, Inc.",Closed with explanation,Yes,
+1323140,Credit card,,Transaction issue,,NY,10512,Web,04/09/2015,04/09/2015,Navy FCU,In progress,Yes,
+1322945,Debt collection,Medical,Improper contact or sharing of info,Contacted employer after asked not to,TX,77378,Web,04/09/2015,04/09/2015,Transworld Systems Inc.,In progress,Yes,
+1324065,Bank account or service,Checking account,Problems caused by my funds being low,,NJ,07950,Web,04/09/2015,04/09/2015,"FNIS (Fidelity National Information Services, Inc.)",Closed with explanation,Yes,
