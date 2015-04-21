@@ -73,7 +73,6 @@ def compare_company_responses_by_year():
 
     top_companies = set()
 
-    print(len(company_year_successes_list))
     company_year_successes_list.sort(key=lambda x:x[0], reverse=True)
 
     for entry in company_year_successes_list:
@@ -86,7 +85,6 @@ def compare_company_responses_by_year():
     company_year_success_series = {}
     company_year_success_count_series = {}
     
-    print(len(company_year_successes_list))
     for entry in company_year_successes_list:
         company = entry[1].split('-')[0]
         year = entry[1].split('-')[1]
@@ -96,11 +94,9 @@ def compare_company_responses_by_year():
         if len(company_set.intersection(top_companies)) == 1:
             
             if company_year_success_series.get(company) is None:
-                print('creating new...')
                 company_year_success_series[company] = [year]
                 company_year_success_count_series[company] = [response_count]
             else:
-                print('appending...')
                 company_year_success_series.get(company).append(year)
                 company_year_success_count_series.get(company).append(response_count)
 
