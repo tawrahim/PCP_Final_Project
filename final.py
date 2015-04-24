@@ -65,7 +65,7 @@ def compare_company_responses_by_year():
             if company_year_successes.get(mapKey) is not None:
                 company_year_successes[mapKey] = company_year_successes[mapKey]+1
             else:
-                company_year_successes[mapKey] = 0
+                company_year_successes[mapKey] = 1
 
     company_year_successes_list = []
     for successKey in company_year_successes:
@@ -103,12 +103,70 @@ def compare_company_responses_by_year():
 
     for k in company_year_success_series:
         print(k, company_year_success_series[k], company_year_success_count_series[k])
-        
+
+
+def compare_company_complaints_by_year():
+
+    # collect all complaints into a map of complaint -> count
+    complaints_count = {}
+    for complaint in consumer_complaint_data:
+        customer_issue = complaint[ISSUE_COLUMN]
+        if complaints_count.get(customer_issue) is not None:
+            complaints_count[customer_issue] = complaints_count[customer_issue]+1
+        else:
+            complaints_count[customer_issue] = 1
+
+    # put complains into a list of tuples
+    complaints_count_list = []
+    for complaint in complaints_count:
+        complaints_count_list.append((complaints_count[complaint], complaint))
+
+    # take the top 5 complaints
+    top_complaints = set()
+
+    complaints_count_list.sort(key=lambda x:x[0], reverse=True)
+
+    for entry in complaints_count_list:
+        complaint = entry[1]
+        if len(top_complaints) == 5:
+            break
+        else:
+            top_complaints.add(complaint)
+
+    # debug for showing the complaints.
+    # TODO: Remove
+    print(top_complaints)
+
+
+    company_year_complaints = {}
+
+    for complaint in consumer_complaint_data:
+
+        customer_issue = complaint[ISSUE_COLUMN]
+        mapKey = complaint[COMPANY_NAME_COLUMN]+'-'+(complaint[DATE_SENT_COLUMN][6:])
+
+        complaint_set = set()
+        complaint_set.add(customer_issue)
+        if len(complaint_set.intersection(top_complaints)) == 1:
+            
+            if company_year_complaints.get(mapKey) is not None:
+                if company_year_complaints.get(mapKey).get(customer_issue) is not None:
+                    company_year_complaints[mapKey][customer_issue] = company_year_complaints[mapKey][customer_issue]+1
+                else:
+                    company_year_complaints[mapKey] = {customer_issue: 1}
+            else:
+                company_year_complaints[mapKey] = {customer_issue: 1}
+
+    for k1 in company_year_complaints:
+        for k2 in company_year_complaints[k1]:
+            if company_year_complaints[k1][k2] > 50:
+                print(k1, company_year_complaints[k1])
 
 def main():
     read_contents_in_csv_file("Consumer_Complaints.csv")
 
     compare_company_responses_by_year()
+    compare_company_complaints_by_year()
 
 
 # Entry point of the app
