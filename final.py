@@ -1,5 +1,8 @@
+#!/usr/bin/python3
+
 import csv
-#import pylab
+import pylab
+import numpy
 
 # Constants indicating column index
 COMPLAINT_ID_COLUMN = 0
@@ -118,11 +121,11 @@ def print_most_complained_about_product():
 # TODO: Plot the 5 companies on a graph. y-axis is companies, y-axis is response count.
 # TODO: Make the constant 5 a variable passed into the function, so we can include more companies if performance allows.
 def compare_company_responses_by_year():
-    
+
     company_year_successes = {}
-    
+
     for complaint in consumer_complaint_data:
-        
+
         # Closed with X is a successful response to the customer
         if not complaint[COMPANY_RESPONSE_COLUMN].find('Closed with ') == -1:
 
@@ -150,7 +153,7 @@ def compare_company_responses_by_year():
 
     company_year_success_series = {}
     company_year_success_count_series = {}
-    
+
     for entry in company_year_successes_list:
         company = entry[1].split('-')[0]
         year = entry[1].split('-')[1]
@@ -158,7 +161,7 @@ def compare_company_responses_by_year():
         company_set = set()
         company_set.add(company)
         if len(company_set.intersection(top_companies)) == 1:
-            
+
             if company_year_success_series.get(company) is None:
                 company_year_success_series[company] = [year]
                 company_year_success_count_series[company] = [response_count]
@@ -166,8 +169,47 @@ def compare_company_responses_by_year():
                 company_year_success_series.get(company).append(year)
                 company_year_success_count_series.get(company).append(response_count)
 
-    for k in company_year_success_series:
-        print(k, company_year_success_series[k], company_year_success_count_series[k])
+    company_year_successes = {}
+    
+    # create a list of tuples for sorting...
+    for company in company_year_success_series:
+        #company_year_successes.append((company_year_success_series[company], company_year_success_count_series[company]))
+        #print(company, company_year_success_series[company], company_year_success_count_series[company])
+        company_year_successes[company] = list(zip(company_year_success_series[company], company_year_success_count_series[company]))
+        #company_year_successes[company].sort(key=lambda x:x[0], reverse=False)
+        company_year_successes[company].sort()
+
+    companies_legend = []
+    plot_x = []
+    plot_x_labels = set()
+    company_count = 0
+    for company in company_year_successes:
+
+        years = []
+        counts = []
+        companies_legend.append(company)
+        
+    
+        for values in company_year_successes[company]:
+            print(values[0], ' - ', values[0])
+            years.append(values[0])
+            counts.append(values[1])
+            plot_x_labels.add(values[0])
+
+        width = 0.25
+        plot_x = numpy.arange(1, len(years)+1)
+        pylab.bar(plot_x + (company_count*0.1), counts, 0.1, color=get_random_color())
+
+        company_count = company_count + 1
+    
+    pylab.legend(companies_legend)
+    labels = list(plot_x_labels)
+    labels.sort()
+    pylab.xticks(plot_x, labels)
+    pylab.xlabel('years')
+    pylab.ylabel('Successful Customer Complaint Resolution Counts')
+    pylab.show()
+
 
 
 def compare_company_complaints_by_year():
@@ -200,7 +242,7 @@ def compare_company_complaints_by_year():
 
     # debug for showing the complaints.
     # TODO: Remove
-    print(top_complaints)
+    # print(top_complaints)
 
 
     company_year_complaints = {}
@@ -213,7 +255,7 @@ def compare_company_complaints_by_year():
         complaint_set = set()
         complaint_set.add(customer_issue)
         if len(complaint_set.intersection(top_complaints)) == 1:
-            
+
             if company_year_complaints.get(mapKey) is not None:
                 if company_year_complaints.get(mapKey).get(customer_issue) is not None:
                     company_year_complaints[mapKey][customer_issue] = company_year_complaints[mapKey][customer_issue]+1
@@ -227,12 +269,16 @@ def compare_company_complaints_by_year():
             if company_year_complaints[k1][k2] > 50:
                 print(k1, company_year_complaints[k1])
 
+def get_random_color():
+    n = 50
+    return numpy.random.rand(n)
+
 def main():
     read_contents_in_csv_file("Consumer_Complaints.csv")
     compare_company_responses_by_year()
     compare_company_complaints_by_year()
-    total_number_of_complaints_based_on_company()
-    print_most_complained_about_product()
+    #total_number_of_complaints_based_on_company()
+    #print_most_complained_about_product()
 
 
 # Entry point of the app
