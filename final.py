@@ -3,6 +3,7 @@
 import csv
 import pylab
 import numpy
+import matplotlib.pyplot as plt
 
 # Constants indicating column index
 COMPLAINT_ID_COLUMN = 0
@@ -279,9 +280,34 @@ def compare_company_complaints_by_year(graph_year):
             #    if company_year_complaints[k1][k2] > 50:
             #        print(k1, company_year_complaints[k1])
 
-    for k in complaints_to_company_count:
-        complaints_to_company_count[k].sort()
-        print(k, complaints_to_company_count[k])
+    complaints_set = set()
+    
+    for complaint_to_company in complaints_to_company_count[graph_year]:
+        complaints_set.add(complaint_to_company[0])
+
+
+    subplot_count = 1
+    
+    for complaint in complaints_set:
+
+        complaint_counts = []
+        complaint_company_name = []
+        
+        for complaint_to_company in complaints_to_company_count[graph_year]:
+            if complaint_to_company[0] == complaint:
+                complaint_counts.append(complaint_to_company[1])
+                complaint_company_name.append(complaint_to_company[2])
+
+        #print(complaint_counts)
+        #print(complaint_company_name)
+        plt.subplot(2,1,subplot_count)
+        subplot_count = subplot_count + 1
+        plt.title(complaint+' '+graph_year)
+        plt.pie(complaint_counts, labels=complaint_company_name)
+
+    plt.show()
+        
+    
 
 def get_random_color():
     n = 50
