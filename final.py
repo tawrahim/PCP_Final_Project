@@ -191,7 +191,6 @@ def compare_company_responses_by_year():
         
     
         for values in company_year_successes[company]:
-            print(values[0], ' - ', values[0])
             years.append(values[0])
             counts.append(values[1])
             plot_x_labels.add(values[0])
@@ -212,7 +211,7 @@ def compare_company_responses_by_year():
 
 
 
-def compare_company_complaints_by_year():
+def compare_company_complaints_by_year(graph_year):
 
     # collect all complaints into a map of complaint -> count
     complaints_count = {}
@@ -264,10 +263,25 @@ def compare_company_complaints_by_year():
             else:
                 company_year_complaints[mapKey] = {customer_issue: 1}
 
-    for k1 in company_year_complaints:
-        for k2 in company_year_complaints[k1]:
-            if company_year_complaints[k1][k2] > 50:
-                print(k1, company_year_complaints[k1])
+    complaints_to_company_count = {}
+    for company_year in company_year_complaints:
+        company_name = company_year.split('-')[0]
+        company_year_key = company_year.split('-')[1]
+
+        if company_year_key == graph_year:
+            for company_complaint in company_year_complaints[company_year]:
+                if company_year_complaints[company_year][company_complaint] > 50:
+                    if complaints_to_company_count.get(company_year_key) is not None:
+                        complaints_to_company_count[company_year_key].append((company_complaint, company_year_complaints[company_year][company_complaint], company_name))
+                    else:
+                        complaints_to_company_count[company_year_key] = [(company_complaint, company_year_complaints[company_year][company_complaint], company_name)]
+            #for k2 in company_year_complaints[k1]:
+            #    if company_year_complaints[k1][k2] > 50:
+            #        print(k1, company_year_complaints[k1])
+
+    for k in complaints_to_company_count:
+        complaints_to_company_count[k].sort()
+        print(k, complaints_to_company_count[k])
 
 def get_random_color():
     n = 50
@@ -276,7 +290,7 @@ def get_random_color():
 def main():
     read_contents_in_csv_file("Consumer_Complaints.csv")
     compare_company_responses_by_year()
-    compare_company_complaints_by_year()
+    compare_company_complaints_by_year('2015')
     #total_number_of_complaints_based_on_company()
     #print_most_complained_about_product()
 
