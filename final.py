@@ -21,6 +21,10 @@ COMPANY_RESPONSE_COLUMN = 11
 TIMELY_RESPONSE_COLUMN = 12
 CONSUMER_DISPUTED_COLUMN = 13
 
+# Used as a parameter for compare_company_responses_by_year
+COMPANY_SUCCESSFUL_RESPONSES = 'successful'
+COMPANY_UNSUCCESSFUL_RESPONSES = 'unsuccessful'
+
 # Implicitly immutable.
 consumer_complaint_data = []
 
@@ -117,26 +121,33 @@ def print_most_complained_about_product():
 
 # Find the 5 companies with the highest successful responses.
 # Find total successful responses for each company for every year.
-# Create two maps, where the keys are the company name, 1 map holds a list of years, the other map holds a list of
-#   total successful response for that year.
-# TODO: Plot the 5 companies on a graph. y-axis is companies, y-axis is response count.
-# TODO: Make the constant 5 a variable passed into the function, so we can include more companies if performance allows.
-def compare_company_responses_by_year():
+def compare_company_responses_by_year(response_category):
 
     company_year_successes = {}
 
     for complaint in consumer_complaint_data:
 
-        # Closed with X is a successful response to the customer
-        if not complaint[COMPANY_RESPONSE_COLUMN].find('Closed with ') == -1:
+        if response_category == COMPANY_SUCCESSFUL_RESPONSES:
+            # Closed with X is a successful response to the customer
+            if not complaint[COMPANY_RESPONSE_COLUMN].find('Closed with ') == -1:
 
-            # mapKey is companyName-YYYY
-            mapKey = complaint[COMPANY_NAME_COLUMN]+'-'+(complaint[DATE_SENT_COLUMN][6:])
-            if company_year_successes.get(mapKey) is not None:
-                company_year_successes[mapKey] = company_year_successes[mapKey]+1
-            else:
-                company_year_successes[mapKey] = 1
+                # mapKey is companyName-YYYY
+                mapKey = complaint[COMPANY_NAME_COLUMN]+'-'+(complaint[DATE_SENT_COLUMN][6:])
+                if company_year_successes.get(mapKey) is not None:
+                    company_year_successes[mapKey] = company_year_successes[mapKey]+1
+                else:
+                    company_year_successes[mapKey] = 1
+        elif response_category == COMPANY_UNSUCCESSFUL_RESPONSES:
 
+            if complaint[COMPANY_RESPONSE_COLUMN].find('Closed with ') == -1:
+
+                mapKey = complaint[COMPANY_NAME_COLUMN]+'-'+(complaint[DATE_SENT_COLUMN][6:])
+                if company_year_successes.get(mapKey) is not None:
+                    company_year_successes[mapKey] = company_year_successes[mapKey]+1
+                else:
+                    company_year_successes[mapKey] = 1
+
+                    
     company_year_successes_list = []
     for successKey in company_year_successes:
         company_year_successes_list.append((company_year_successes[successKey], successKey))
@@ -172,25 +183,22 @@ def compare_company_responses_by_year():
 
     company_year_successes = {}
     
-    # create a list of tuples for sorting...
+    # create a list of tuples for sorting
     for company in company_year_success_series:
-        #company_year_successes.append((company_year_success_series[company], company_year_success_count_series[company]))
-        #print(company, company_year_success_series[company], company_year_success_count_series[company])
         company_year_successes[company] = list(zip(company_year_success_series[company], company_year_success_count_series[company]))
-        #company_year_successes[company].sort(key=lambda x:x[0], reverse=False)
         company_year_successes[company].sort()
 
     companies_legend = []
     plot_x = []
     plot_x_labels = set()
     company_count = 0
+    
     for company in company_year_successes:
 
         years = []
         counts = []
         companies_legend.append(company)
         
-    
         for values in company_year_successes[company]:
             years.append(values[0])
             counts.append(values[1])
@@ -207,10 +215,17 @@ def compare_company_responses_by_year():
     labels.sort()
     pylab.xticks(plot_x, labels)
     pylab.xlabel('years')
-    pylab.ylabel('Successful Customer Complaint Resolution Counts')
+    if response_category == COMPANY_SUCCESSFUL_RESPONSES:
+        pylab.ylabel('Customer Complaint Resolution Counts')
+    elif response_category == COMPANY_UNSUCCESSFUL_RESPONSES:
+        pylab.ylabel('Unresolved Complaint Counts')
+    
+    
+    if response_category == COMPANY_SUCCESSFUL_RESPONSES:
+        pylab.title('Closed Responses')
+    elif response_category == COMPANY_UNSUCCESSFUL_RESPONSES:
+        pylab.title('Unresolved Responses.')
     pylab.show()
-
-
 
 def compare_company_complaints_by_year(graph_year):
 
@@ -239,11 +254,6 @@ def compare_company_complaints_by_year(graph_year):
             break
         else:
             top_complaints.add(complaint)
-
-    # debug for showing the complaints.
-    # TODO: Remove
-    # print(top_complaints)
-
 
     company_year_complaints = {}
 
@@ -276,15 +286,11 @@ def compare_company_complaints_by_year(graph_year):
                         complaints_to_company_count[company_year_key].append((company_complaint, company_year_complaints[company_year][company_complaint], company_name))
                     else:
                         complaints_to_company_count[company_year_key] = [(company_complaint, company_year_complaints[company_year][company_complaint], company_name)]
-            #for k2 in company_year_complaints[k1]:
-            #    if company_year_complaints[k1][k2] > 50:
-            #        print(k1, company_year_complaints[k1])
-
+                        
     complaints_set = set()
     
     for complaint_to_company in complaints_to_company_count[graph_year]:
         complaints_set.add(complaint_to_company[0])
-
 
     subplot_count = 1
     
@@ -298,16 +304,67 @@ def compare_company_complaints_by_year(graph_year):
                 complaint_counts.append(complaint_to_company[1])
                 complaint_company_name.append(complaint_to_company[2])
 
-        #print(complaint_counts)
-        #print(complaint_company_name)
         plt.subplot(2,1,subplot_count)
         subplot_count = subplot_count + 1
         plt.title(complaint+' '+graph_year)
         plt.pie(complaint_counts, labels=complaint_company_name)
 
     plt.show()
-        
+
+def find_submitted_via_by_year():
+
+    submit_via_by_year = {}
+
+    for complaint in consumer_complaint_data:
+
+        complaint_via = complaint[SUBMITTED_VIA_COLUMN]
+        complaint_year = complaint[DATE_SENT_COLUMN][6:]
+
+        if submit_via_by_year.get(complaint_year) is not None:
+            if submit_via_by_year[complaint_year].get(complaint_via) is not None:
+                submit_via_by_year[complaint_year][complaint_via] = submit_via_by_year[complaint_year][complaint_via] + 1
+            else:
+                submit_via_by_year[complaint_year][complaint_via] = 1
+        else:
+            submit_via_by_year[complaint_year] = {complaint_via : 1}
+
+    # Use a set to find all unique years.
+    submitted_years_set = set()
+
+    for submitted_year in submit_via_by_year:
+        submitted_years_set.add(submitted_year)
+
+    # Turn the above set into a list so we can sort the years
+    # prior to graphing.
+    submitted_years_list = []
+    for submitted_year in submitted_years_set:
+        submitted_years_list.append(submitted_year)
+    submitted_years_list.sort()
     
+    subplot_count = 1
+
+    graph_colors = []
+
+    while not (len(graph_colors) == 6):
+        graph_colors.append(get_random_color())
+    
+    for submit_year in submitted_years_list:
+        
+        via_counts = []
+        via_type = []
+        
+        for submitted_via in submit_via_by_year[submit_year]:
+            via_counts.append(submit_via_by_year[submit_year][submitted_via])
+            via_type.append(submitted_via)
+
+        plt.subplot(len(submitted_years_set),1,subplot_count)
+        subplot_count = subplot_count + 1
+        plt.title(submit_year)
+        patches, texts = plt.pie(via_counts, colors=graph_colors)
+        plt.legend(patches, via_type, loc="best")
+
+    plt.suptitle('Complaints Submitted Via by Year')
+    plt.show()
 
 def get_random_color():
     n = 50
@@ -315,8 +372,13 @@ def get_random_color():
 
 def main():
     read_contents_in_csv_file("Consumer_Complaints.csv")
-    compare_company_responses_by_year()
-    compare_company_complaints_by_year('2015')
+    #compare_company_responses_by_year(COMPANY_SUCCESSFUL_RESPONSES)
+    compare_company_responses_by_year(COMPANY_UNSUCCESSFUL_RESPONSES)
+    #compare_company_complaints_by_year('2012')
+    #compare_company_complaints_by_year('2013')
+    #compare_company_complaints_by_year('2014')
+    #compare_company_complaints_by_year('2015')
+    #find_submitted_via_by_year()
     #total_number_of_complaints_based_on_company()
     #print_most_complained_about_product()
 
