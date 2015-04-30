@@ -256,11 +256,11 @@ def compare_company_complaints_by_year(graph_year):
             top_complaints.add(complaint)
 
     company_year_complaints = {}
-
+    
     for complaint in consumer_complaint_data:
 
         customer_issue = complaint[ISSUE_COLUMN]
-        mapKey = complaint[COMPANY_NAME_COLUMN]+'-'+(complaint[DATE_SENT_COLUMN][6:])
+        mapKey = complaint[DATE_SENT_COLUMN][6:]
 
         complaint_set = set()
         complaint_set.add(customer_issue)
@@ -270,46 +270,45 @@ def compare_company_complaints_by_year(graph_year):
                 if company_year_complaints.get(mapKey).get(customer_issue) is not None:
                     company_year_complaints[mapKey][customer_issue] = company_year_complaints[mapKey][customer_issue]+1
                 else:
-                    company_year_complaints[mapKey] = {customer_issue: 1}
+                    company_year_complaints[mapKey][customer_issue] = 1
             else:
                 company_year_complaints[mapKey] = {customer_issue: 1}
 
-    complaints_to_company_count = {}
-    for company_year in company_year_complaints:
-        company_name = company_year.split('-')[0]
-        company_year_key = company_year.split('-')[1]
+    year_set = set()
+    for year in company_year_complaints:
+        year_set.add(year)
 
-        if company_year_key == graph_year:
-            for company_complaint in company_year_complaints[company_year]:
-                if company_year_complaints[company_year][company_complaint] > 50:
-                    if complaints_to_company_count.get(company_year_key) is not None:
-                        complaints_to_company_count[company_year_key].append((company_complaint, company_year_complaints[company_year][company_complaint], company_name))
-                    else:
-                        complaints_to_company_count[company_year_key] = [(company_complaint, company_year_complaints[company_year][company_complaint], company_name)]
-                        
-    complaints_set = set()
+    graph_year_list = []
+    for year in year_set:
+        graph_year_list.append(year)
+
+    graph_year_list.sort()
     
-    for complaint_to_company in complaints_to_company_count[graph_year]:
-        complaints_set.add(complaint_to_company[0])
-
     subplot_count = 1
+
+    graph_colors = []
+
+    while not (len(graph_colors) == 5):
+        graph_colors.append(get_random_color())
     
-    for complaint in complaints_set:
+    for year in graph_year_list:
 
-        complaint_counts = []
-        complaint_company_name = []
-        
-        for complaint_to_company in complaints_to_company_count[graph_year]:
-            if complaint_to_company[0] == complaint:
-                complaint_counts.append(complaint_to_company[1])
-                complaint_company_name.append(complaint_to_company[2])
+        complaint_desc = []
+        complaint_count = []
 
-        plt.subplot(2,1,subplot_count)
+        for complaint in company_year_complaints[year]:
+            complaint_desc.append(complaint)
+            complaint_count.append(company_year_complaints[year][complaint])
+
+        plt.subplot(len(graph_year_list),1,subplot_count)
         subplot_count = subplot_count + 1
-        plt.title(complaint+' '+graph_year)
-        plt.pie(complaint_counts, labels=complaint_company_name)
+        plt.title(year)
+        patches, texts = plt.pie(complaint_count, colors=graph_colors)
+        plt.legend(patches, complaint_desc, loc="best")
 
+    plt.suptitle('Top 5 Complaints by Year')
     plt.show()
+
 
 def find_submitted_via_by_year():
 
@@ -373,8 +372,8 @@ def get_random_color():
 def main():
     read_contents_in_csv_file("Consumer_Complaints.csv")
     #compare_company_responses_by_year(COMPANY_SUCCESSFUL_RESPONSES)
-    compare_company_responses_by_year(COMPANY_UNSUCCESSFUL_RESPONSES)
-    #compare_company_complaints_by_year('2012')
+    #compare_company_responses_by_year(COMPANY_UNSUCCESSFUL_RESPONSES)
+    compare_company_complaints_by_year('2012')
     #compare_company_complaints_by_year('2013')
     #compare_company_complaints_by_year('2014')
     #compare_company_complaints_by_year('2015')
