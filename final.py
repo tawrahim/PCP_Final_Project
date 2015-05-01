@@ -29,7 +29,8 @@ COMPANY_UNSUCCESSFUL_RESPONSES = 'unsuccessful'
 consumer_complaint_data = []
 
 company_complaints_hash_map = {}
-most_complained_by_product_map = {}
+company_and_total_complaints_map = {}
+company_break_down_of_complaints = {}
 submit_type_with_date_map = {}
 
 
@@ -54,10 +55,7 @@ def read_contents_in_csv_file(file_name):
             add_entry_to_map(company_name, line)
             consumer_complaint_data.append(line)
 
-        print("Total number of complaints is: " + str(total_number_of_complaints))
 
-
-# Question 2
 def submit_type_with_date(data_set):
     for x in data_set:
         k = x[SUBMITTED_VIA_COLUMN]
@@ -68,55 +66,38 @@ def submit_type_with_date(data_set):
             submit_type_with_date_map[k] = [v]
 
 
-# Helper function used by question 1
 def group_complaints_based_on_state(data_set):
     result = {}
     for x in data_set:
         state = x[SATE_COLUMN]
+        if state == "":
+            state = "N/A"
         if state in result:
             result[state] += 1
         else:
             result[state] = 1
-    for s in result:
-        if s == "":
-            print("N/S" + " " * 4 + str(result[s]))
-        else:
-            print(s + " " * 5 + str(result[s]))
+    return result
 
 
-# Question 1: Total number of complaints by company by region
-def total_number_of_complaints_based_on_company():
-    x_axis = []
-    y_axis = []
-    print("Company Name                                                  #Of Complaints")
-    print("----------------------------------------------------------------------------")
+# This function is sort of a greedy algorithm. It it loop
+# only once through our data set and then sets up a bunch
+# dictionaries that we would use later in our program
+def build_up_data_set():
     for company_name in company_complaints_hash_map:
         data_set_for_company = company_complaints_hash_map[company_name]
         submit_type_with_date(data_set_for_company)
 
-        max_spaces = 68
-        number_of_complaints = len(data_set_for_company)
-        x_axis.append(company_name)
-        y_axis.append(number_of_complaints)
-        print(str(company_name) + str(" "*(max_spaces - len(company_name)) +
-                                      str(number_of_complaints)))
-        group_complaints_based_on_state(data_set_for_company)
-
-        most_complained_by_product_map[company_name] = number_of_complaints
-    # Plot the points on a graph
-    # pylab.plot(y_axis)
-    # pylab.xticks(y_axis, x_axis)
+        company_break_down_of_complaints[company_name] = group_complaints_based_on_state(data_set_for_company)
+        company_and_total_complaints_map[company_name] = len(data_set_for_company)
 
 
-# Question 3
-def print_most_complained_about_product():
-    print()
-    print("Products and their complains")
-    print("----------------------------")
-    max_spaces = 68
-    sorted_list = sorted(most_complained_by_product_map.items(), key=lambda x: x[1])
-    for k in sorted_list:
-        print(k[0] + str(" "*(max_spaces - len(k[0]))) + str(k[1]))
+# This function returns an ordered list of company name
+# and the total number of complaints logged against them
+# Each of the list item contains a tuple in the format
+# (companyName, #Complaints)
+# The returned list is from the lowest to the highest
+def get_all_companies_and_the_number_of_complaints_logged_against_them():
+    return sorted(company_and_total_complaints_map.items(), key=lambda x: x[1])
 
 
 # Find the 5 companies with the highest successful responses.
@@ -365,12 +346,71 @@ def find_submitted_via_by_year():
     plt.suptitle('Complaints Submitted Via by Year')
     plt.show()
 
+
 def get_random_color():
     n = 50
     return numpy.random.rand(n)
 
+
+def graph_top_n_complained_about_product(n):
+    data_set = get_all_companies_and_the_number_of_complaints_logged_against_them()[-n:]
+    plot_x = []
+
+    x_labels = []
+    y_labels = []
+    for x in data_set:
+        x_labels.append(x[0])
+        y_labels.append(x[1])
+        # plot_x = numpy.arange(1, len(years)+1)
+
+    pylab.xticks([1, 2, 3, 4, 5, 6], x_labels)
+    pylab.xlabel('Company Name')
+    pylab.ylabel('Number of complaints')
+    pylab.show()
+
+
+def graph_company_distribution_of_complaints_based_on_states(company_name):
+    data_set = company_break_down_of_complaints[company_name]
+    plot_x = []
+
+    x_labels = []
+    y_labels = []
+    for x in data_set:
+        x_labels.append(x)
+        y_labels.append(x)
+        #     bar(left, height, width=0.8, bottom=None, hold=None, **kwargs)
+        # plot_x = numpy.arange(1, len(years)+1)
+
+    pylab.xticks([1, 2, 3, 4, 5, 6], x_labels)
+    pylab.xlabel('State Name')
+    pylab.ylabel('Number of complaints in State')
+    pylab.show()
+
+
+def graph_count_of_submission_type():
+    data_set = submit_type_with_date_map
+
+    plot_x = []
+
+    x_labels = []
+    y_labels = []
+    for x in data_set:
+        x_labels.append(x)
+        y_labels.append(x)
+        # plot_x = numpy.arange(1, len(years)+1)
+
+    pylab.xticks([1, 2, 3, 4, 5, 6], x_labels)
+    pylab.xlabel('Type of Submission')
+    pylab.ylabel('Number of Submission')
+    pylab.show()
+
+
 def main():
     read_contents_in_csv_file("Consumer_Complaints.csv")
+    build_up_data_set()
+    graph_top_n_complained_about_product(5)
+    graph_company_distribution_of_complaints_based_on_states('Citibank')
+    graph_count_of_submission_type()
     #compare_company_responses_by_year(COMPANY_SUCCESSFUL_RESPONSES)
     #compare_company_responses_by_year(COMPANY_UNSUCCESSFUL_RESPONSES)
     compare_company_complaints_by_year('2012')
