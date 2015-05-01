@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import csv
+from numpy.ma import arange
 import pylab
 import numpy
 import matplotlib.pyplot as plt
@@ -79,9 +80,10 @@ def group_complaints_based_on_state(data_set):
     return result
 
 
-# This function is sort of a greedy algorithm. It it loop
-# only once through our data set and then sets up a bunch
-# dictionaries that we would use later in our program
+# Our data set is very huge so it only makes sense that
+# we don't go through our data set when not needed.
+# This function is a greedy algorithm that solves that problem,
+# we filter  all the data set we need in one pass through
 def build_up_data_set():
     for company_name in company_complaints_hash_map:
         data_set_for_company = company_complaints_hash_map[company_name]
@@ -185,11 +187,12 @@ def compare_company_responses_by_year(response_category):
             counts.append(values[1])
             plot_x_labels.add(values[0])
 
-        width = 0.25
+        width = 0.1
         plot_x = numpy.arange(1, len(years)+1)
-        pylab.bar(plot_x + (company_count*0.1), counts, 0.1, color=get_random_color())
+        a = plot_x + (company_count*0.1)
+        pylab.bar(a, counts, width, color=get_random_color())
 
-        company_count = company_count + 1
+        company_count += 1
     
     pylab.legend(companies_legend)
     labels = list(plot_x_labels)
@@ -201,12 +204,12 @@ def compare_company_responses_by_year(response_category):
     elif response_category == COMPANY_UNSUCCESSFUL_RESPONSES:
         pylab.ylabel('Unresolved Complaint Counts')
     
-    
     if response_category == COMPANY_SUCCESSFUL_RESPONSES:
         pylab.title('Closed Responses')
     elif response_category == COMPANY_UNSUCCESSFUL_RESPONSES:
         pylab.title('Unresolved Responses.')
     pylab.show()
+
 
 def compare_company_complaints_by_year(graph_year):
 
@@ -352,57 +355,61 @@ def get_random_color():
     return numpy.random.rand(n)
 
 
+def graph_points(x_labels, y_labels, title, xlabel, ylabel):
+    colors_array = []
+
+    for _ in x_labels:
+        colors_array.append(get_random_color())
+
+    width = 0.35
+    ind = arange(len(x_labels))
+    plt.bar(ind, y_labels, width, color=colors_array)
+
+    pylab.xticks(ind+width/2, x_labels)
+    plt.title(title)
+    pylab.xlabel(xlabel)
+    pylab.ylabel(ylabel)
+    pylab.show()
+
+
 def graph_top_n_complained_about_product(n):
     data_set = get_all_companies_and_the_number_of_complaints_logged_against_them()[-n:]
-    plot_x = []
 
     x_labels = []
     y_labels = []
     for x in data_set:
         x_labels.append(x[0])
         y_labels.append(x[1])
-        # plot_x = numpy.arange(1, len(years)+1)
 
-    pylab.xticks([1, 2, 3, 4, 5, 6], x_labels)
-    pylab.xlabel('Company Name')
-    pylab.ylabel('Number of complaints')
-    pylab.show()
+    graph_points(x_labels, y_labels, "Top 5 most complained about product", "Company Name", "Number of complaints")
 
 
 def graph_company_distribution_of_complaints_based_on_states(company_name):
     data_set = company_break_down_of_complaints[company_name]
-    plot_x = []
+
+    # We cant possibly show all 50 states on the graph so we show a small sample size
+    number_of_states_to_show = 20
 
     x_labels = []
     y_labels = []
     for x in data_set:
+        y_labels.append(data_set[x])
         x_labels.append(x)
-        y_labels.append(x)
-        #     bar(left, height, width=0.8, bottom=None, hold=None, **kwargs)
-        # plot_x = numpy.arange(1, len(years)+1)
 
-    pylab.xticks([1, 2, 3, 4, 5, 6], x_labels)
-    pylab.xlabel('State Name')
-    pylab.ylabel('Number of complaints in State')
-    pylab.show()
+    graph_points(x_labels[0:number_of_states_to_show], y_labels[0:number_of_states_to_show], " ",
+                 "State Name", "Number of complaints in State")
 
 
 def graph_count_of_submission_type():
     data_set = submit_type_with_date_map
 
-    plot_x = []
-
     x_labels = []
     y_labels = []
     for x in data_set:
+        y_labels.append(len(data_set[x]))
         x_labels.append(x)
-        y_labels.append(x)
-        # plot_x = numpy.arange(1, len(years)+1)
 
-    pylab.xticks([1, 2, 3, 4, 5, 6], x_labels)
-    pylab.xlabel('Type of Submission')
-    pylab.ylabel('Number of Submission')
-    pylab.show()
+    graph_points(x_labels, y_labels, " ", "Type of Submission", "Number of Submission")
 
 
 def main():
@@ -411,15 +418,13 @@ def main():
     graph_top_n_complained_about_product(5)
     graph_company_distribution_of_complaints_based_on_states('Citibank')
     graph_count_of_submission_type()
-    #compare_company_responses_by_year(COMPANY_SUCCESSFUL_RESPONSES)
-    #compare_company_responses_by_year(COMPANY_UNSUCCESSFUL_RESPONSES)
-    compare_company_complaints_by_year('2012')
-    #compare_company_complaints_by_year('2013')
-    #compare_company_complaints_by_year('2014')
-    #compare_company_complaints_by_year('2015')
-    #find_submitted_via_by_year()
-    #total_number_of_complaints_based_on_company()
-    #print_most_complained_about_product()
+    # compare_company_responses_by_year(COMPANY_SUCCESSFUL_RESPONSES)
+    # compare_company_responses_by_year(COMPANY_UNSUCCESSFUL_RESPONSES)
+    # compare_company_complaints_by_year('2012')
+    # compare_company_complaints_by_year('2013')
+    # compare_company_complaints_by_year('2014')
+    # compare_company_complaints_by_year('2015')
+    # find_submitted_via_by_year()
 
 
 # Entry point of the app
