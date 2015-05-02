@@ -396,7 +396,8 @@ def graph_company_distribution_of_complaints_based_on_states(company_name):
         y_labels.append(data_set[x])
         x_labels.append(x)
 
-    graph_points(x_labels[0:number_of_states_to_show], y_labels[0:number_of_states_to_show], " ",
+    graph_points(x_labels[0:number_of_states_to_show], y_labels[0:number_of_states_to_show], "Break down of " +
+                 company_name + "'s complaints by " + str(number_of_states_to_show) + " states ",
                  "State Name", "Number of complaints in State")
 
 
