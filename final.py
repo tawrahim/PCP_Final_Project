@@ -1,5 +1,34 @@
 #!/usr/bin/python3
 
+# final.py
+# Description:
+#
+#   This program operates and displays consumer complaints by various criteria.
+#   For each question asked, a function was used to aggregate and display that data.
+#   Constants declared are used as indexes into the data set list, as well as flags
+#   for function calls.
+#
+#   Some utility functions were written for code re-use. The build_up_data_set()
+#   provides a function to reduce the number of iterations through the data set
+#   and graph_points() is a function to plot bar charts in a standardized way.
+#
+#   Other functions are more complicated due to the representation of the data.
+#   Where some collections need to be process multiple times, reducing the collection
+#   to be smaller and more meaningful with each operation.
+#
+#   Graphs are represented mostly in bar and pie chart form. Each graph was picked
+#   based on what was most appropriate for the given data. Some graphs also contain
+#   sup-plots as a comparison tool.
+# 
+# Known Bugs:
+#
+#   None
+#
+# Author: Nicholas Quirk, Tawheed Raheem
+# E-Mail: nquirk@student.fitchburgstate.edu
+# Course: CSC 7014 – Spring 2015
+# Assignment: Final Project
+
 import csv
 from numpy.ma import arange
 import pylab
@@ -102,12 +131,13 @@ def get_all_companies_and_the_number_of_complaints_logged_against_them():
     return sorted(company_and_total_complaints_map.items(), key=lambda x: x[1])
 
 
-# Find the 5 companies with the highest successful responses.
-# Find total successful responses for each company for every year.
+# Find the 5 companies with the highest successful or unsuccessful reponses.
+# A response category flag is passed in for the purpose of selecting the desired output.
 def compare_company_responses_by_year(response_category):
 
     company_year_successes = {}
 
+    # Build a map of company-year -> successful response count
     for complaint in consumer_complaint_data:
 
         if response_category == COMPANY_SUCCESSFUL_RESPONSES:
@@ -130,13 +160,14 @@ def compare_company_responses_by_year(response_category):
                 else:
                     company_year_successes[mapKey] = 1
 
-                    
+    # Convert the map into a list of tuples (response count, company-year)        
     company_year_successes_list = []
     for successKey in company_year_successes:
         company_year_successes_list.append((company_year_successes[successKey], successKey))
 
     top_companies = set()
 
+    # Sort the list of tuples in reverse order, then take the top 5.
     company_year_successes_list.sort(key=lambda x:x[0], reverse=True)
 
     for entry in company_year_successes_list:
@@ -146,6 +177,10 @@ def compare_company_responses_by_year(response_category):
         else:
             top_companies.add(company)
 
+    # Create two maps which will hold a list of entries for each company.
+    # This part is done so we can sort the counts by year.
+    # company -> [years]
+    # company -> [counts]
     company_year_success_series = {}
     company_year_success_count_series = {}
 
@@ -165,8 +200,8 @@ def compare_company_responses_by_year(response_category):
                 company_year_success_count_series.get(company).append(response_count)
 
     company_year_successes = {}
-    
-    # create a list of tuples for sorting
+
+    # Create a list of tuples for sorting. Zip the company -> [years] and company -> [counts] together.
     for company in company_year_success_series:
         company_year_successes[company] = list(zip(company_year_success_series[company], company_year_success_count_series[company]))
         company_year_successes[company].sort()
@@ -175,7 +210,10 @@ def compare_company_responses_by_year(response_category):
     plot_x = []
     plot_x_labels = set()
     company_count = 0
-    
+
+    # Create the lists necessary to plot the years on the x-axis,
+    # where companies fall in year buckets.
+    # Plot the counts on the y-axis.
     for company in company_year_successes:
 
         years = []
@@ -210,10 +248,10 @@ def compare_company_responses_by_year(response_category):
         pylab.title('Unresolved Responses.')
     pylab.show()
 
+# Finds the top 5 complatins by year and displays a pie chart for each year.
+def compare_complaints_by_year():
 
-def compare_company_complaints_by_year(graph_year):
-
-    # collect all complaints into a map of complaint -> count
+    # Collect all complaints into a map of complaint -> count.
     complaints_count = {}
     for complaint in consumer_complaint_data:
         customer_issue = complaint[ISSUE_COLUMN]
@@ -222,12 +260,12 @@ def compare_company_complaints_by_year(graph_year):
         else:
             complaints_count[customer_issue] = 1
 
-    # put complains into a list of tuples
+    # Put complains into a list of tuples.
     complaints_count_list = []
     for complaint in complaints_count:
         complaints_count_list.append((complaints_count[complaint], complaint))
 
-    # take the top 5 complaints
+    # Take the top 5 complaints by sorting in reverse order, then taking the first 5.
     top_complaints = set()
 
     complaints_count_list.sort(key=lambda x:x[0], reverse=True)
@@ -239,6 +277,8 @@ def compare_company_complaints_by_year(graph_year):
         else:
             top_complaints.add(complaint)
 
+    # Given our top complaints, now find the complaints by year.
+    # Populate a map of maps: YYYY -> complaint -> complaint count.
     company_year_complaints = {}
     
     for complaint in consumer_complaint_data:
@@ -269,19 +309,20 @@ def compare_company_complaints_by_year(graph_year):
     graph_year_list.sort()
     
     subplot_count = 1
-
+    
     graph_colors = []
 
     while not (len(graph_colors) == 5):
         graph_colors.append(get_random_color())
-    
+
+    # For each year, create a pie sub-plot and graph it.
     for year in graph_year_list:
 
         complaint_desc = []
         complaint_count = []
 
         for complaint in company_year_complaints[year]:
-            complaint_desc.append(complaint)
+            complaint_desc.append(complaint+" - "+str(company_year_complaints[year][complaint]))
             complaint_count.append(company_year_complaints[year][complaint])
 
         plt.subplot(len(graph_year_list),1,subplot_count)
@@ -293,11 +334,12 @@ def compare_company_complaints_by_year(graph_year):
     plt.suptitle('Top 5 Complaints by Year')
     plt.show()
 
-
+# Counts the submitted via for each year and graphs a pie chart for each year.
 def find_submitted_via_by_year():
 
     submit_via_by_year = {}
 
+    # Create a map to count the submitted via by year: submitted year -> submitted via -> count
     for complaint in consumer_complaint_data:
 
         complaint_via = complaint[SUBMITTED_VIA_COLUMN]
@@ -330,7 +372,8 @@ def find_submitted_via_by_year():
 
     while not (len(graph_colors) == 6):
         graph_colors.append(get_random_color())
-    
+
+    # Graph each submitted year on a sub-plot with a legend.
     for submit_year in submitted_years_list:
         
         via_counts = []
@@ -338,7 +381,7 @@ def find_submitted_via_by_year():
         
         for submitted_via in submit_via_by_year[submit_year]:
             via_counts.append(submit_via_by_year[submit_year][submitted_via])
-            via_type.append(submitted_via)
+            via_type.append(submitted_via+' - '+str(submit_via_by_year[submit_year][submitted_via]))
 
         plt.subplot(len(submitted_years_set),1,subplot_count)
         subplot_count = subplot_count + 1
@@ -349,12 +392,13 @@ def find_submitted_via_by_year():
     plt.suptitle('Complaints Submitted Via by Year')
     plt.show()
 
-
+# Utility function to generate a random color for graping.
+# The colors this returns are generally better than the defaults.
 def get_random_color():
     n = 50
     return numpy.random.rand(n)
 
-
+# Function to graph data in bar chart form.
 def graph_points(x_labels, y_labels, title, xlabel, ylabel):
     colors_array = []
 
@@ -414,18 +458,20 @@ def graph_count_of_submission_type():
 
 
 def main():
+    # Pass file name to this function for any pre-processing.
     read_contents_in_csv_file("Consumer_Complaints.csv")
+
+    # Called to create additional data structures for aggregation by other functions.
     build_up_data_set()
+
+    # Aggregation and graphing functions.
     graph_top_n_complained_about_product(5)
     graph_company_distribution_of_complaints_based_on_states('Citibank')
     graph_count_of_submission_type()
-    # compare_company_responses_by_year(COMPANY_SUCCESSFUL_RESPONSES)
-    # compare_company_responses_by_year(COMPANY_UNSUCCESSFUL_RESPONSES)
-    # compare_company_complaints_by_year('2012')
-    # compare_company_complaints_by_year('2013')
-    # compare_company_complaints_by_year('2014')
-    # compare_company_complaints_by_year('2015')
-    # find_submitted_via_by_year()
+    compare_company_responses_by_year(COMPANY_SUCCESSFUL_RESPONSES)
+    compare_company_responses_by_year(COMPANY_UNSUCCESSFUL_RESPONSES)
+    compare_complaints_by_year()
+    find_submitted_via_by_year()
 
 
 # Entry point of the app
