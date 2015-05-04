@@ -25,8 +25,8 @@
 #   None
 #
 # Author: Nicholas Quirk, Tawheed Raheem
-# E-Mail: nquirk@student.fitchburgstate.edu
-# Course: CSC 7014 – Spring 2015
+# E-Mail: nquirk@student.fitchburgstate.edu, tabdulra@student.fitchburgstate.edu
+# Course: CSC 7014 - Spring 2015
 # Assignment: Final Project
 
 import csv
@@ -392,11 +392,13 @@ def find_submitted_via_by_year():
     plt.suptitle('Complaints Submitted Via by Year')
     plt.show()
 
+
 # Utility function to generate a random color for graping.
 # The colors this returns are generally better than the defaults.
 def get_random_color():
     n = 50
     return numpy.random.rand(n)
+
 
 # Function to graph data in bar chart form.
 def graph_points(x_labels, y_labels, title, xlabel, ylabel):
@@ -425,7 +427,7 @@ def graph_top_n_complained_about_product(n):
         x_labels.append(x[0])
         y_labels.append(x[1])
 
-    graph_points(x_labels, y_labels, "Top 5 most complained about product", "Company Name", "Number of complaints")
+    graph_points(x_labels, y_labels, "Top 5 most complained about companies", "Company Name", "Number of complaints")
 
 
 def graph_company_distribution_of_complaints_based_on_states(company_name):
@@ -464,9 +466,34 @@ def main():
     # Called to create additional data structures for aggregation by other functions.
     build_up_data_set()
 
+    '''
+    while True:
+        print("Drilling down by state level. ")
+        print("Example of valid companies are: ")
+        print("------------------------------")
+        print()
+
+        companies = company_break_down_of_complaints.keys()
+        for name in companies[0:10]:
+            print(name)
+
+        user_input = input("Enter a name of a company: ")
+        print(user_input)
+        if user_input in company_break_down_of_complaints:
+            graph_company_distribution_of_complaints_based_on_states(user_input)
+        else:
+            print("The company you entered is not valid, example of valid companies are: ")
+            for name in companies[0:10]:
+                print(name)
+            continue
+
+        if user_input == "done":
+            return
+    '''
+
     # Aggregation and graphing functions.
     graph_top_n_complained_about_product(5)
-    graph_company_distribution_of_complaints_based_on_states('Citibank')
+    graph_company_distribution_of_complaints_based_on_states("Citibank")
     graph_count_of_submission_type()
     compare_company_responses_by_year(COMPANY_SUCCESSFUL_RESPONSES)
     compare_company_responses_by_year(COMPANY_UNSUCCESSFUL_RESPONSES)
