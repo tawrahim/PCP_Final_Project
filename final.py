@@ -310,10 +310,12 @@ def compare_complaints_by_year():
     
     subplot_count = 1
     
-    graph_colors = []
+    graph_colors_map = {}
 
-    while not (len(graph_colors) == 5):
-        graph_colors.append(get_random_color())
+    #while not (len(graph_colors) == 5):
+    #    graph_colors.append(get_random_color())
+    for complaint in top_complaints:
+        graph_colors_map[complaint] = get_random_color()
 
     # For each year, create a pie sub-plot and graph it.
     for year in graph_year_list:
@@ -321,9 +323,19 @@ def compare_complaints_by_year():
         complaint_desc = []
         complaint_count = []
 
+        complaint_tuples = []
+        graph_colors = []
+
         for complaint in company_year_complaints[year]:
-            complaint_desc.append(complaint+" - "+str(company_year_complaints[year][complaint]))
-            complaint_count.append(company_year_complaints[year][complaint])
+            complaint_tuples.append((complaint, company_year_complaints[year][complaint]))
+
+        # Alphabetical order
+        complaint_tuples.sort()
+        
+        for complaint in complaint_tuples:
+            complaint_desc.append(complaint[0]+' - '+str(complaint[1]))
+            complaint_count.append(complaint[1])
+            graph_colors.append(graph_colors_map[complaint[0]])
 
         plt.subplot(len(graph_year_list),1,subplot_count)
         subplot_count = subplot_count + 1
